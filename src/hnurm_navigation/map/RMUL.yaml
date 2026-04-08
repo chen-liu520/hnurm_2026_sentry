@@ -1,0 +1,8 @@
+image: RMUL.pgm
+mode: trinary
+resolution: 0.05
+origin: [-1.22, -6.28, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.25
+# [-1.5, -6.0, 0] 为启动区右上角   机器人半径28  -->机器人初始点为地图原点的-0.28,0.28

@@ -1,0 +1,48 @@
+/**:
+  ros__parameters:
+
+    # 红方巡航路径
+    red_goals_array:
+      initial_goals:  ["5.67,-2.52"] # 初始巡航路径, "3.94,-2.16"
+      center_goals: ["5.86,-1.71"] #, "5.76,-3.14"
+      supply_goals: ["-0.42,0.95"]
+      ambush_goals: ["4.86,-0.11", "7.32,-0.93", "7.04,0.76", "4.02,-1.41"]
+      guard_goals:  ["1.80,-3.92", "3.10,-3.84", "4.47,-4.83", "0.83,-4.55"]
+      home_goals: ["-0.04,-0.90", "-0.67,-3.20", "-0.63,-4.89"]
+
+
+
+    # 蓝方巡航路径
+    blue_goals_array:
+      initial_goals:  ["5.67,-2.52"] # 初始巡航路径, "3.94,-2.16"
+      center_goals: ["5.86,-1.71"] #, "5.76,-3.14"
+      supply_goals: ["-0.42,0.95"]
+      ambush_goals: ["4.86,-0.11", "7.32,-0.93", "7.04,0.76", "4.02,-1.41"]
+      guard_goals:  ["1.80,-3.92", "3.10,-3.84", "4.47,-4.83", "0.83,-4.55"]
+      home_goals: ["-0.04,-0.90", "-0.67,-3.20", "-0.63,-4.89"]
+
+
+    # 特殊区域
+    special_area:
+      my_home_polygon: ["-1.42,1.98", "-1.43,-0.56", "1.27,-0.53", "1.32,1.99"]
+      my_move_polygon: ["-1.43,-0.78", "-1.23,-6.42", "6.45,-6.57", "6.43,-4.02", "3.38,-3.92", "1.33,-0.68"]
+      center_polygon:  ["6.36,-0.81", "6.34,-3.85", "3.36,-3.79", "3.39,-0.79"]
+      opponent_home_polygon: ["11.08,-6.49", "8.42,-6.46", "8.29,-3.87", "11.05,-3.96"]
+      opponent_move_polygon: ["11.10,-3.88", "10.90,1.85", "3.31,1.89", "3.29,-0.63", "6.38,-0.69", "8.36,-3.75"]
+
+    global_position_topic: "/global_costmap/published_footprint"
+    cmd_vel_topic: "/cmd_vel"
+    cmd_vel_remap_topic: "/cmd_vel_remap"
+    recv_topic: "/my_recv_data"
+    send_topic: "/vision_send_data"
+    back_target_topic: "/back_target"
+    spin_control_pub_topic: "/decision/spin_control"   # 发布旋转控制命令的话题
+    scan_center_angle_topic: "/decision/scan_center_angle" # 发布控制180度扫描中心角度的话题
+    back_target_state_pub_topic: "/decision/back_target_state" # 发布后视目标状态的话题
+    gesture_pub_topic: "/decision/gesture"
+    enable_180_scan_topic: "/decision/enable_180_scan" # 发布是否启用180度扫描的话题
+    is_target_at_home_topic: "/decision/is_target_at_home" # 发布目标是否在我方基地的话题
+
+
+    # 控制：
+    pursue_stay_circle_radius: 0.5 # 追击静止小陀螺的半径

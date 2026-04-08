@@ -1,0 +1,12 @@
+/**:
+  ros__parameters:
+    lidar_topic: "/segmentation/obstacle"
+    output_lidar_topic_: "/pointcloud"
+    odom_topic: "/Odometry"
+    sensor_height: 0.31
+    base_frame: "base_footprint"
+    lidar_frame: "odom"    #此处选用了去畸变的/cloud_registered 里程计输出点云 
+    laser_frame: "laser_link"
+    laser_topic: "/laser/scan"
+    robot_radius: 0.5
+    filter_topic: "/special_areas"

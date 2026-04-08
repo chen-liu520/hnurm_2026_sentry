@@ -1,0 +1,924 @@
+amcl:
+  ros__parameters:
+    # 初始位姿参数（与地图原点一致）
+    # initial_pose:
+    #   x: 0.0   # 地图原点 x 坐标
+    #   y: 0.0    # 地图原点 y 坐标
+    #   yaw: 0.0    # 初始朝向（弧度）
+    # set_initial_pose: true  # 启用初始位姿设置
+    use_sim_time: False
+    alpha1: 0.2     # 里程计旋转运动产生的旋转噪声
+    alpha2: 0.2     # 里程计旋转运动产生的平移噪声
+    alpha3: 0.2     # 里程计平移运动产生的平移噪声
+    alpha4: 0.2     # 里程计平移运动产生的旋转噪声
+    alpha5: 0.2     # 全向轮模型专用参数
+    base_frame_id: "base_footprint" # 机器人基座坐标系
+    beam_skip_distance: 0.5
+    beam_skip_error_threshold: 0.9
+    beam_skip_threshold: 0.3
+    do_beamskip: false
+    global_frame_id: "map"  # 全局坐标系
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0
+    laser_max_range: 10.0   #20.0 # 激光雷达最大有效距离
+    laser_min_range: -1.0
+    laser_model_type: "likelihood_field" # 激光雷达模型类型
+    max_beams: 100
+    max_particles: 2000     # 最大粒子数
+    min_particles: 500      # 最小粒子数
+    odom_frame_id: "odom"   # 里程计坐标系
+    pf_err: 0.05
+    pf_z: 0.99
+    recovery_alpha_fast: 0.1   #0.0 # 快速恢复参数（用于应对定位丢失）
+    recovery_alpha_slow: 0.0   # 慢速恢复参数
+    resample_interval: 1
+    robot_model_type: "nav2_amcl::OmniMotionModel" # 机器人运动模型：全向轮
+    save_pose_rate: 0.5
+    sigma_hit: 0.2
+    tf_broadcast: true      # 是否发布 map -> odom 的 TF 变换
+    transform_tolerance: 1.0
+    update_min_a: 0.2       # 触发更新的最小旋转角度(弧度)
+    update_min_d: 0.25      # 触发更新的最小移动距离(米)
+    z_hit: 0.5
+    z_max: 0.05
+    z_rand: 0.5
+    z_short: 0.05
+    scan_topic: scan        # 订阅的激光雷达话题
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: False
+    global_frame: map
+    robot_base_frame: base_footprint
+    odom_topic: /Odometry_transformed
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    # default_nav_to_pose_bt_xml: behavior_tree
+    # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
+    # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
+    # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
+    # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_compute_path_through_poses_action_bt_node
+      - nav2_smooth_path_action_bt_node
+      - nav2_follow_path_action_bt_node
+      - nav2_spin_action_bt_node
+      - nav2_wait_action_bt_node
+      - nav2_assisted_teleop_action_bt_node
+      - nav2_back_up_action_bt_node
+      - nav2_drive_on_heading_bt_node
+      - nav2_clear_costmap_service_bt_node
+      - nav2_is_stuck_condition_bt_node
+      - nav2_goal_reached_condition_bt_node
+      - nav2_goal_updated_condition_bt_node
+      - nav2_globally_updated_goal_condition_bt_node
+      - nav2_is_path_valid_condition_bt_node
+      - nav2_initial_pose_received_condition_bt_node
+      - nav2_reinitialize_global_localization_service_bt_node
+      - nav2_rate_controller_bt_node
+      - nav2_distance_controller_bt_node
+      - nav2_speed_controller_bt_node
+      - nav2_truncate_path_action_bt_node
+      - nav2_truncate_path_local_action_bt_node
+      - nav2_goal_updater_node_bt_node
+      - nav2_recovery_node_bt_node
+      - nav2_pipeline_sequence_bt_node
+      - nav2_round_robin_node_bt_node
+      - nav2_transform_available_condition_bt_node
+      - nav2_time_expired_condition_bt_node
+      - nav2_path_expiring_timer_condition
+      - nav2_distance_traveled_condition_bt_node
+      - nav2_single_trigger_bt_node
+      - nav2_goal_updated_controller_bt_node
+      - nav2_is_battery_low_condition_bt_node
+      - nav2_navigate_through_poses_action_bt_node
+      - nav2_navigate_to_pose_action_bt_node
+      - nav2_remove_passed_goals_action_bt_node
+      - nav2_planner_selector_bt_node
+      - nav2_controller_selector_bt_node
+      - nav2_goal_checker_selector_bt_node
+      - nav2_controller_cancel_bt_node
+      - nav2_path_longer_on_approach_bt_node
+      - nav2_wait_cancel_bt_node
+      - nav2_spin_cancel_bt_node
+      - nav2_back_up_cancel_bt_node
+      - nav2_assisted_teleop_cancel_bt_node
+      - nav2_drive_on_heading_cancel_bt_node
+      - nav2_is_battery_charging_condition_bt_node
+
+bt_navigator_navigate_through_poses_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+bt_navigator_navigate_to_pose_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+controller_server:    #   lookahead_dist: 0.6
+
+  ros__parameters:
+    odom_topic: /Odometry_transformed
+    use_sim_time: False
+    controller_frequency: 100.0 # 控制器运行频率(Hz)
+    min_x_velocity_threshold: 0.001 # X轴最小速度阈值(死区)
+    min_y_velocity_threshold: 0.001 # Y轴最小速度阈值
+    min_theta_velocity_threshold: 0.001 # 最小角速度阈值
+    failure_tolerance: 0.5
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugins: ["general_goal_checker"] 
+    controller_plugins: ["FollowPath","Omni", "Omni3"]
+    enable_stamped_cmd_vel: true
+    # Progress checker parameters
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5 # 必须移动的最小半径
+      movement_time_allowance: 10.0 # 允许的时间，如果10秒内没移动0.5米则认为卡住
+    # Goal checker parameters
+    # precise_goal_checker:
+    #  plugin: "nav2_controller::SimpleGoalChecker"
+    #  xy_goal_tolerance: 0.25
+    #  yaw_goal_tolerance: 0.25
+    #  stateful: True
+    general_goal_checker:
+      stateful: True
+      
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.1    # 到达目标的XY位置容差(米)
+      yaw_goal_tolerance: 3.15  # 到达目标的角度容差(弧度)
+      
+    FollowPath:
+      plugin: "nav2_mppi_controller::MPPIController"
+      time_steps: 56    # 预测的时间步数
+      model_dt: 0.01    # 每个时间步的时间间隔(秒)，总预测时间 = time_steps * model_dt
+      batch_size: 2000  # 每次迭代采样的轨迹数量，越多越精确但越耗算力
+      vx_std: 0.3       # X轴速度采样标准差（探索范围）
+      vy_std: 0.3       # Y轴速度采样标准差
+      wz_std: 0.4       # 角速度采样标准差 #调大这个以适配云台旋转
+      vx_min: -1.30     # 最小X速度
+      vx_max: 1.30      # 最大X速度
+      vy_min: -1.30     # 最小Y速度
+      vy_max: 1.30      # 最大Y速度
+      wz_max: 1.50      # 最大角速度
+      iteration_count: 1
+      prune_distance: 0.4
+      transform_tolerance: 0.1
+      temperature: 0.3
+      gamma: 0.015
+      motion_model: "Omni" # 运动模型：全向
+      visualize: false
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
+      AckermannConstraints:
+        min_turning_r: 0.2
+        # prediction_horizon_s * max_speed / path_resolution / 3.0  is a good baseline
+      # critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "PathAlignCritic", "PathFollowCritic","ObstaclesCritic"]
+      ConstraintCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4
+      # GoalAngleCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 3.0
+      #   threshold_to_consider: 0.5
+      # PreferForwardCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 5.0
+      #   threshold_to_consider: 0.5
+      # Option to replace Cost and use Obstacles instead
+      ObstaclesCritic:
+        enabled: true
+        cost_power: 1
+        repulsion_weight: 1.5
+        critical_weight: 20.0
+        consider_footprint: false
+        collision_cost: 10000.0
+        collision_margin_distance: 0.1
+        near_goal_distance: 0.5
+      CostCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        consider_footprint: true
+        collision_cost: 1000000.0
+        near_goal_distance: 1.0
+        trajectory_point_step: 2
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 4
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+      # PathAngleCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 2.0
+      #   offset_from_furthest: 4
+      #   threshold_to_consider: 0.5
+      #   max_angle_to_furthest: 1.0
+      #   forward_preference: true
+      VelocityDeadbandCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 35.0
+        deadband_velocities: [0.05, 0.05, 0.05]
+      # TwirlingCritic:
+      #   enabled: true
+      #   twirling_cost_power: 1
+      #   twirling_cost_weight: 10.0
+    FollowPath2:
+      # plugin: "nav2_rotation_shim_controller::RotationShimController"
+      # primary_controller: "dwb_core::DWBLocalPlanner"
+      # angular_dist_threshold: 0.785
+      # forward_sampling_distance: 0.5
+      # rotate_to_heading_angular_vel: 1.8
+      # max_angular_accel: 3.2
+      # simulate_ahead_time: 1.0
+      
+      plugin: "dwb_core::DWBLocalPlanner"
+      prune_distance: 0.5    # 剪枝距离：机器人走过后，身后多少距离的路径点会被删除
+      debug_trajectory_details: True # 调试模式：发布评分细节
+      min_vel_x: -0.25
+      min_vel_y: -0.25
+      max_vel_x: 0.25
+      max_vel_y: 0.25
+      max_vel_theta: 0.0  
+      min_speed_xy: -2.0
+      max_speed_xy: 2.0
+      min_speed_theta: 0.0
+      # Add high threshold velocity for turtlebot 3 issue.
+      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
+      acc_lim_x: 3.0    # X轴加速度限制
+      acc_lim_y: 3.0    # Y轴加速度限制
+      acc_lim_theta: 3.2 # 角加速度限制
+      decel_lim_x: -3.0 # X轴减速度限制
+      decel_lim_y: -3.0 
+      decel_lim_theta: -3.2
+      vx_samples: 40    # X速度采样数，越大越平滑但越卡
+      vy_samples: 40    # Y速度采样数
+      vtheta_samples: 0
+      sim_time: 1.7     # 模拟时间(秒)：预测未来多少秒的轨迹
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.25
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      # critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist",]
+      critics: ["Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist",]
+
+      BaseObstacle.scale: 0.2 # 避障评分权重：越高越怕撞
+      BaseObstacle.sum_scores: True      #提高避障评分
+      PathAlign.scale: 64.0   # 路径对齐权重：越高越贴合全局路径
+      PathAlign.forward_point_distance: 0.1   #0.1
+      GoalAlign.scale: 24.0   # 目标对齐权重：越高车头越指向目标
+      GoalAlign.forward_point_distance: 0.1     #0.1
+      PathDist.scale: 32.0    # 路径距离权重：越高越不敢偏离路径
+      GoalDist.scale: 24.0    # 目标距离权重：越高越想接近目标
+      # RotateToGoal.scale: 32.0
+      # RotateToGoal.slowing_factor: 5.0
+      # RotateToGoal.lookahead_time: -1.0
+      RotateToGoal.scale: 0.0
+      RotateToGoal.slowing_factor: 0.0
+      RotateToGoal.lookahead_time: 0.0
+      # Recovery
+      shrink_horizon_backup: True
+      shrink_horizon_min_duration: 10.0
+      oscillation_recovery: True
+      oscillation_v_eps: 0.2   #0.1X下同
+      oscillation_omega_eps: 0.2
+      oscillation_recovery_min_duration: 5.0   #10.0 下同
+      oscillation_filter_duration: 5.0
+    Omni:
+      plugin: "nav2_mppi_controller::MPPIController"
+      time_steps: 56
+      model_dt: 0.01
+      batch_size: 2000
+      vx_std: 0.35
+      vy_std: 0.35
+      wz_std: 2.0   #调大这个以适配云台旋转
+      vx_min: -1.5
+      vx_max: 1.5
+      vy_min: -1.5
+      vy_max: 1.5
+      wz_max: 2.0
+      iteration_count: 1
+      prune_distance: 0.5
+      transform_tolerance: 0.1
+      temperature: 0.3
+      gamma: 0.015
+      motion_model: "Omni"
+      visualize: false
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
+      AckermannConstraints:
+        min_turning_r: 0.2
+      # critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "PathAlignCritic", "PathFollowCritic","ObstaclesCritic"]
+      ConstraintCritic:
+        enabled: false   #这个对于旋转扫描走有副作用
+        cost_power: 1
+        cost_weight: 4.0
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4
+      # GoalAngleCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 3.0
+      #   threshold_to_consider: 0.5
+      # PreferForwardCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 5.0
+      #   threshold_to_consider: 0.5
+      # Option to replace Cost and use Obstacles instead
+      ObstaclesCritic:
+        enabled: false
+        cost_power: 1
+        repulsion_weight: 1.5
+        critical_weight: 20.0
+        consider_footprint: false
+        collision_cost: 10000.0
+        collision_margin_distance: 0.1
+        near_goal_distance: 0.5
+      CostCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        consider_footprint: true
+        collision_cost: 1000000.0
+        near_goal_distance: 1.0
+        trajectory_point_step: 2
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 4
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 18.0
+        offset_from_furthest: 5
+        threshold_to_consider: 0.8
+      # PathAngleCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 2.0
+      #   offset_from_furthest: 4
+      #   threshold_to_consider: 0.5
+      #   max_angle_to_furthest: 1.0
+      #   forward_preference: true
+      # VelocityDeadbandCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 35.0
+      #   deadband_velocities: [0.05, 0.05, 0.05]
+      # TwirlingCritic:
+      #   enabled: true
+      #   twirling_cost_power: 1
+      #   twirling_cost_weight: 10.0
+    Omni3:
+      plugin: "nav2_mppi_controller::MPPIController"
+      time_steps: 56
+      model_dt: 0.01
+      batch_size: 2000
+      vx_std: 0.2
+      vy_std: 0.2
+      wz_std: 2.0   #调大这个以适配云台旋转
+      vx_min: -0.2
+      vx_max: 0.2
+      vy_min: -0.2
+      vy_max: 0.2
+      wz_max: 10.0
+      iteration_count: 1
+      prune_distance: 0.5
+      transform_tolerance: 0.1
+      temperature: 0.3
+      gamma: 0.015
+      motion_model: "Omni"
+      visualize: false
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
+      AckermannConstraints:
+        min_turning_r: 0.2
+      # critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "PathAlignCritic", "PathFollowCritic","ObstaclesCritic"]
+      ConstraintCritic:
+        enabled: false   #这个对于旋转扫描走有副作用
+        cost_power: 1
+        cost_weight: 4.0
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 0.8
+      # GoalAngleCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 3.0
+      #   threshold_to_consider: 0.5
+      # PreferForwardCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 5.0
+      #   threshold_to_consider: 0.5
+      # Option to replace Cost and use Obstacles instead
+      ObstaclesCritic:
+        enabled: false
+        cost_power: 1
+        repulsion_weight: 1.5
+        critical_weight: 20.0
+        consider_footprint: false
+        collision_cost: 10000.0
+        collision_margin_distance: 0.1
+        near_goal_distance: 0.3
+      CostCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        consider_footprint: true
+        collision_cost: 1000000.0
+        near_goal_distance: 1.0
+        trajectory_point_step: 2
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 4
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 18.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+      # PathAngleCritic:
+      #   enabled: false
+      #   cost_power: 1
+      #   cost_weight: 2.0
+      #   offset_from_furthest: 4
+      #   threshold_to_consider: 0.5
+      #   max_angle_to_furthest: 1.0
+      #   forward_preference: true
+      # VelocityDeadbandCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 35.0
+      #   deadband_velocities: [0.05, 0.05, 0.05]
+      # TwirlingCritic:
+      #   enabled: true
+      #   twirling_cost_power: 1
+      #   twirling_cost_weight: 10.0
+    Omni2:
+      # plugin: "nav2_rotation_shim_controller::RotationShimController"
+      # primary_controller: "dwb_core::DWBLocalPlanner"
+      # angular_dist_threshold: 0.785
+      # forward_sampling_distance: 0.5
+      # rotate_to_heading_angular_vel: 1.8
+      # max_angular_accel: 3.2
+      # simulate_ahead_time: 1.0
+      
+      plugin: "dwb_core::DWBLocalPlanner"
+      prune_distance: 1.0    #new add
+      debug_trajectory_details: True
+      min_vel_x: -1.0
+      min_vel_y: -1.0
+      max_vel_x: 1.0
+      max_vel_y: 1.0
+      max_vel_theta: 0.0  
+      min_speed_xy: -2.0
+      max_speed_xy: 2.0
+      min_speed_theta: 0.0
+      # Add high threshold velocity for turtlebot 3 issue.
+      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
+      acc_lim_x: 3.0
+      acc_lim_y: 3.0 ##0.0
+      acc_lim_theta: 3.2
+      decel_lim_x: -3.0
+      decel_lim_y: -3.0 #0.0
+      decel_lim_theta: -3.2
+      vx_samples: 40
+      vy_samples: 40
+      vtheta_samples: 0
+      sim_time: 1.7
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.25
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      # critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist",]
+      critics: ["Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist",]
+
+      BaseObstacle.scale: 0.2 #0.02
+      BaseObstacle.sum_scores: True      #提高避障评分
+      PathAlign.scale: 64.0
+      PathAlign.forward_point_distance: 0.1   #0.1
+      GoalAlign.scale: 24.0
+      GoalAlign.forward_point_distance: 0.1     #0.1
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+      # RotateToGoal.scale: 32.0
+      # RotateToGoal.slowing_factor: 5.0
+      # RotateToGoal.lookahead_time: -1.0
+      RotateToGoal.scale: 0.0
+      RotateToGoal.slowing_factor: 0.0
+      RotateToGoal.lookahead_time: 0.0
+      # Recovery
+      shrink_horizon_backup: True
+      shrink_horizon_min_duration: 10.0
+      oscillation_recovery: True
+      oscillation_v_eps: 0.2   #0.1X下同
+      oscillation_omega_eps: 0.2
+      oscillation_recovery_min_duration: 5.0   #10.0 下同
+      oscillation_filter_duration: 5.0
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 50.0    # 代价地图更新频率(Hz)
+      publish_frequency: 20.0   # 代价地图发布频率(Hz)用于可视化
+      # global_frame: odom 
+      global_frame: odom        # 局部代价地图通常基于 odom 坐标系
+      robot_base_frame: base_footprint # 机器人基座坐标系
+      use_sim_time: False
+      rolling_window: true      # 是否使用滚动窗口（地图随机器人移动），局部地图必须为 true
+      width: 5                  # 滚动窗口宽度(米)
+      height: 5                 # 滚动窗口高度(米)
+      resolution: 0.05          # 地图分辨率(米/格)
+      robot_radius: 0.26        # 机器人半径(米)，用于碰撞检测，非常重要！
+      plugins: ["obstacle_layer", "inflation_layer","laser_layer"]
+      # plugins: ["voxel2d_layer","voxel3d_layer", "inflation_layer","denoise_layer"]
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0 # 代价衰减因子，越大衰减越快（越不保守）
+        inflation_radius: 0.23   # 膨胀半径(米)，障碍物周围多少距离内有代价
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: true
+        minimal_group_size: 2
+        group_connectivity_type: 8
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: livox 
+        max_obstacle_height: 1.0
+        min_obstacle_height: -1.0
+        livox:
+          topic: /scan
+          max_obstacle_height: 1.0
+          min_obstacle_height: -1.0
+          clearing: True    # 是否用于清除障碍物（如雷达扫过变空）
+          marking: True     # 是否用于标记障碍物
+          data_type: "LaserScan"
+          raytrace_max_range: 5.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 6.0
+          obstacle_min_range: 0.5
+      laser_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: laser 
+        max_obstacle_height: 1.0
+        min_obstacle_height: -1.0
+        laser:
+          topic: /ld_laserscan
+          max_obstacle_height: 1.0
+          min_obstacle_height: -1.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 5.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 6.0
+          obstacle_min_range: 0.5
+
+      voxel2d_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        publish_voxel_map: False
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: scan 
+        scan:
+          topic: /scan
+          raytrace_min_range: 0.5
+          raytrace_max_range: 10.0
+          min_obstacle_height: 0.0
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+      voxel3d_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        publish_voxel_map: False
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        mark_threshold: 1
+        observation_sources: livox
+        min_obstacle_height: 0.00
+        max_obstacle_height: 2.0 
+        livox:
+          topic: /pointcloud
+          raytrace_min_range: 0.28
+          raytrace_max_range: 10.0
+          min_obstacle_height: 0.0
+          max_obstacle_height: 2.0 
+          clearing: True
+          marking: True
+          data_type: "PointCloud2"
+      static_layer:
+        map_subscribe_transient_local: True
+      always_send_full_costmap: True
+      local_costmap_client:
+        ros__parameters:
+          use_sim_time: False
+      local_costmap_rclcpp_node:
+        ros__parameters:
+          use_sim_time: False
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 20.0    # 全局地图更新频率，通常比局部地图低
+      publish_frequency: 20.0
+      global_frame: map         # 全局地图基于 map 坐标系
+      robot_base_frame: base_footprint
+      use_sim_time: False
+      robot_radius: 0.03        # 全局规划时的机器人半径，有时设小一点以便规划出更贴近障碍的路径
+      resolution: 0.05
+      track_unknown_space: true # 是否跟踪未知区域（true表示未知区域不可通行，除非允许）
+      plugins: ["static_layer", "stvl_layer","inflation_layer","obstacle_layer"]
+      # plugins: ["static_layer", "voxel2d_layer", "voxel3d_layer", "inflation_layer","denoise_layer"]
+      stvl_layer:
+        plugin: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"
+        # https://github.com/SteveMacenski/spatio_temporal_voxel_layer
+        enabled:                  true
+        voxel_decay:              0.5                               # 如果是线性衰减，单位为秒；如果是指数衰减，则为 e 的 n 次方
+        decay_model:              0                                 # 衰减模型，0=线性，1=指数，-1=持久
+        voxel_size:               0.05                              # 每个体素的尺寸，单位为米
+        track_unknown_space:      true                              # default space is unknown
+        mark_threshold:           0                                 # voxel height
+        update_footprint_enabled: true
+        combination_method:       1                                 # 1=max, 0=override
+        origin_z:                 0.0                               # 单位为米
+        publish_voxel_map:        true                              # default false, 是否发布体素地图
+        transform_tolerance:      0.2                             # 单位为秒
+        mapping_mode:             false                             # default off, saves map not for navigation
+        map_save_duration:        60.0                              # default 60s, how often to autosave
+        observation_sources:       livox_mark livox_clear 
+        livox_mark:
+          data_type: PointCloud2
+          topic: /pointcloud
+          marking: true
+          clearing: false
+          obstacle_range: 4.0                                       # meters
+          min_obstacle_height: 0.05                            # default 0, meters，0.05刘晨
+          max_obstacle_height: 2.0                                  # default 3, meters
+          expected_update_rate: 0.0                                 # default 0, if not updating at this rate at least, remove from buffer
+          observation_persistence: 0.0                              # default 0, use all measurements taken during now-value, 0=latest
+          inf_is_valid: false                                       # default false, for laser scans
+          filter: "voxel"                                           # default passthrough, apply "voxel", "passthrough", or no filter to sensor data, recommend on
+          voxel_min_points: 1                                       # default 0, minimum points per voxel for voxel filter
+          clear_after_reading: true                                 # default false, clear the buffer after the layer gets readings from it
+        livox_clear:
+          enabled: true                                             # default true, can be toggled on/off with associated service call
+          data_type: PointCloud2
+          topic: /pointcloud
+          marking: false
+          clearing: true
+          max_z: 8.0                                                # default 10, meters
+          min_z: 1.0                                                # default 0, meters
+          vertical_fov_angle: 1.029                                 # 垂直视场角，单位为弧度，For 3D lidars it's the symmetric FOV about the planar axis.
+          vertical_fov_padding: 0.05                                # 3D Lidar only. Default 0, in meters
+          horizontal_fov_angle: 360.0                                # 3D 激光雷达水平视场角
+          decay_acceleration: 5.0                                   # default 0, 1/s^2.
+          model_type: 1                                             # 0=深度相机，1=3D激光雷达
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        footprint_clearing_enabled: true
+        max_obstacle_height: 2.0
+        combination_method: 0
+        scan:
+          topic: /ld_laserscan
+          obstacle_max_range: 6.0
+          obstacle_min_range: 0.0
+          raytrace_max_range: 6.0
+          raytrace_min_range: 0.0
+          max_obstacle_height: 2.0
+          min_obstacle_height: 0.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          inf_is_valid: false
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: true
+        minimal_group_size: 2
+        group_connectivity_type: 8
+      voxel3d_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        publish_voxel_map: False
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        mark_threshold: 1
+        observation_sources: livox
+        min_obstacle_height: 0.00
+        max_obstacle_height: 2.0 
+        livox:
+          topic: /pointcloud
+          raytrace_min_range: 0.3
+          raytrace_max_range: 10.0
+          min_obstacle_height: 0.0
+          max_obstacle_height: 2.0 
+          clearing: True
+          marking: True
+          data_type: "PointCloud2"
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          sensor_frame: livox_frame
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 10.0
+          raytrace_min_range: 0.35
+          obstacle_max_range: 10.0
+          obstacle_min_range: 0.0
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.70 #0.55
+      always_send_full_costmap: True
+      global_costmap_client:
+        ros__parameters:
+          use_sim_time: False
+      global_costmap_rclcpp_node:
+        ros__parameters:
+          use_sim_time: False
+
+map_server:
+  ros__parameters :
+    use_sim_time: False
+    # Overridden in launch by the "map" launch configuration or provided default value.
+    # To use in yaml, remove the default "map" value in the tb3_simulation_launch.py file & provide full path to map below.
+    yaml_filename: ""
+    # yaml_filename: ""
+
+map_saver:
+  ros__parameters:
+    use_sim_time: False
+    save_map_timeout: 5.0
+    free_thresh_default: 0.25
+    occupied_thresh_default: 0.65
+    map_subscribe_transient_local: True
+
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0   # 规划器期望运行频率
+    use_sim_time: False
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner" # 使用 NavFn 规划器 (类似 Dijkstra/A*)
+      tolerance: 0.5      # 目标点附近的容差
+      use_astar: True     # 是否使用 A* 算法 (False 则使用 Dijkstra)
+      allow_unknown: true # 是否允许路径穿过未知区域
+
+smoother_server:
+  ros__parameters:
+    use_sim_time: False
+    use_sim_time: False
+    smoother_plugins: ["SmoothPath"]
+
+    SmoothPath:
+      plugin: "nav2_constrained_smoother/ConstrainedSmoother"
+      reversing_enabled: true       # whether to detect forward/reverse direction and cusps. Should be set to false for paths without orientations assigned
+      path_downsampling_factor: 3   # every n-th node of the path is taken. Useful for speed-up
+      path_upsampling_factor: 1     # 0 - path remains downsampled, 1 - path is upsampled back to original granularity using cubic bezier, 2... - more upsampling
+      keep_start_orientation: true  # whether to prevent the start orientation from being smoothed
+      keep_goal_orientation: true   # whether to prevent the gpal orientation from being smoothed
+      minimum_turning_radius: 0.40  # minimum turning radius the robot can perform. Can be set to 0.0 (or w_curve can be set to 0.0 with the same effect) for diff-drive/holonomic robots
+      w_curve: 30.0                 # weight to enforce minimum_turning_radius
+      w_dist: 0.0                   # weight to bind path to original as optional replacement for cost weight
+      w_smooth: 2000000.0           # weight to maximize smoothness of path
+      w_cost: 0.015                 # weight to steer robot away from collision and cost
+
+      # Parameters used to improve obstacle avoidance near cusps (forward/reverse movement changes)
+      w_cost_cusp_multiplier: 3.0   # option to use higher weight during forward/reverse direction change which is often accompanied with dangerous rotations
+      cusp_zone_length: 2.5         # length of the section around cusp in which nodes use w_cost_cusp_multiplier (w_cost rises gradually inside the zone towards the cusp point, whose costmap weight eqals w_cost*w_cost_cusp_multiplier)
+
+      # Points in robot frame to grab costmap values from. Format: [x1, y1, weight1, x2, y2, weight2, ...]
+      # IMPORTANT: Requires much higher number of iterations to actually improve the path. Uncomment only if you really need it (highly elongated/asymmetric robots)
+      # cost_check_points: [-0.185, 0.0, 1.0]
+
+      optimizer:
+        max_iterations: 70            # max iterations of smoother
+        debug_optimizer: false        # print debug info
+        gradient_tol: 5.0e+3
+        fn_tol: 1.0e-15
+        param_tol: 1.0e-20
+
+behavior_server:
+  ros__parameters:
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
+    spin:
+      plugin: "nav2_behaviors/Spin" # 原地旋转行为
+    backup:
+      plugin: "nav2_behaviors/BackUp" # 后退行为
+    drive_on_heading:
+      plugin: "nav2_behaviors/DriveOnHeading"
+    wait:
+      plugin: "nav2_behaviors/Wait" # 等待行为
+    assisted_teleop:
+      plugin: "nav2_behaviors/AssistedTeleop"
+    global_frame: odom
+    robot_base_frame: base_footprint
+    transform_tolerance: 0.1
+    use_sim_time: False
+    simulate_ahead_time: 2.0
+    max_rotational_vel: 0.8
+    min_rotational_vel: 0.3
+    rotational_acc_lim: 3.2
+
+robot_state_publisher:
+  ros__parameters:
+    use_sim_time: False
+
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: False
+    loop_rate: 20
+    stop_on_failure: false
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: True
+      waypoint_pause_duration: 200
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: False
+    smoothing_frequency: 20.0
+    scale_velocities: False
+    feedback: "OPEN_LOOP" # 开环模式：假设机器人完美执行指令；CLOSED_LOOP则读取odom反馈
+    max_velocity: [2.0, 2.0, 10.0] # 绝对速度限制 [x, y, theta]
+    min_velocity: [-1.6, -1.6, -10.0]
+    max_accel: [0.5, 0.5, 10.0]    # 加速度限制
+    max_decel: [-0.7, -0.7, -10.0] # 减速度限制
+    odom_topic: "/Odomtry_transformed"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0

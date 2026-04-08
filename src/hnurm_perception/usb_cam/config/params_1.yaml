@@ -1,0 +1,26 @@
+/**:
+    ros__parameters:
+      video_device: "/dev/video0"
+      framerate: 90.0
+      io_method: "mmap"
+      frame_id: "camera_back"
+      pixel_format: "mjpeg2rgb"  # see usb_cam/supported_formats for list of supported formats
+      av_device_format: "YUV422P"
+      image_width: 1920
+      image_height: 1200
+      camera_name: "back_camera"
+      camera_info_url: "package://usb_cam/config/camera_info.yaml"
+      brightness: -43
+      contrast: 0
+      saturation: 66
+      sharpness: 0
+      gain: 0
+      auto_white_balance: false
+      white_balance: 4600
+      autoexposure: false
+      exposure: 40
+      # exposure: 5
+      autofocus: false
+      focus: -1
+      hue: 90
+      power_line_frequency: 1

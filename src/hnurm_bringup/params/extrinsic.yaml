@@ -1,0 +1,46 @@
+/**:
+  ros__parameters:
+    laser_to_base:  #描述的是在base系下的laser位置（未使用）
+      x: 0.03
+      y: 0.145
+      z: 0.0
+      row: 0.0
+      pitch: 0.0
+      yaw: 0.0
+    lidar_to_base:  ##描述的是在base系下的mid360位置
+      x: -0.03
+      y: 0.077
+      z: 0.0601
+      row: 0.0
+      pitch: 0.0
+      yaw: 0.0
+    joint_to_base:  #描述的是在base系下的joint位置
+      x: 0.0
+      y: 0.0
+      z: 0.081
+      row: 0.0
+      pitch: 0.0
+      yaw: 0.0
+
+    camera_to_joint: # 描述的是在joint系下的camera
+      x: 0.117
+      y: 0.00
+      z: 0.01
+      row: 0.0
+      pitch: 0.0
+      yaw: 0.0
+    imu_to_joint:   # 描述的是在joint系下的c板中心
+      x: -0.02134
+      y: 0.0
+      z: 0.01
+      row: 0.0
+      pitch: 0.0
+      yaw: 0.0
+    back_camera_to_base:  # 描述的是在base系下的后视camera光心 ，可以是一个大概的估计
+      x: -0.156
+      y: 0.0
+      z: 0.010
+      row: 0.0
+      pitch: 0.0
+      yaw: 0.0
+    

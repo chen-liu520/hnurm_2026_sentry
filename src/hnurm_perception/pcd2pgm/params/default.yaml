@@ -1,0 +1,6 @@
+/**:
+  ros__parameters:
+    pcd_file: "/home/rm/nav/src/hnunavigation_-ros2/hnurm_perception/PCD/RMUL_test.pcd"
+    start_height: 0.1
+    end_height: 2.0
+    resolution: 0.03
