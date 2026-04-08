@@ -2,4 +2,6 @@ build/
 install/
 log/
 .vscode/
+.marscode/
 *.pcd
+COLCON_IGNORE

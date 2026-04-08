@@ -56,23 +56,15 @@ public:
     std::string self_color = "RED";   //default blue
     geometry_msgs::msg::Transform init_trans_;  //initial pose
     geometry_msgs::msg::Transform initial_pose_guess_;  //initial pose callback
+    bool is_finished_static_transform_ = false;
     bool is_initial_pose_get_ = false;
-    
-protected:
-    std::shared_ptr<TfTransformer> shared_from_this()
-    {
-        return std::static_pointer_cast<TfTransformer>(std::shared_ptr<rclcpp::Node>(this));
-    }
+    // 串口数据回调
+
 private:
 
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
     rclcpp::Subscription<hnurm_interfaces::msg::VisionRecvData>::SharedPtr recv_data_sub_;
-    //rclcpp::Subscription<hnurm_interfaces::msg::ArmorArray>::SharedPtr back_armor_sub_;
     rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr init_pose_sub_;
-
-    // rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_publisher_;
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr  twist_sub_;
-    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr     twist_pub_;
 
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
     rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr back_target_; 
@@ -88,10 +80,8 @@ private:
 
     void recv_data_callback(const hnurm_interfaces::msg::VisionRecvData::SharedPtr msg);
     void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
-    float calculate_theta(const float center);
     void timer_callback();
     void initial_pose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
-    void twist_callback(const geometry_msgs::msg::Twist::SharedPtr msg );
     extrinsic getTransformParams(const std::string & ns);
 };
 }
