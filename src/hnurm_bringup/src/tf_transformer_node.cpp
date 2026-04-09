@@ -18,18 +18,16 @@ namespace hnurm
 
         RCLCPP_INFO(get_logger(), "TfTransformer is running");
         std::vector<std::string> frame_names = {
-            "lidar_to_base","back_camera_to_base"
-        };
+            "lidar_to_base", "back_camera_to_base"};
         std::map<std::string, extrinsic> transforms;
 
         // 获取各个传感器的变换参数
-        for(const auto & frame : frame_names) {
+        for (const auto &frame : frame_names)
+        {
             transforms[frame] = getTransformParams(frame);
         }
 
         lidar_to_base = transforms["lidar_to_base"];
-        camera_to_joint = transforms["camera_to_joint"];
-        joint_to_base = transforms["joint_to_base"];
         back_camera_to_base = transforms["back_camera_to_base"];
 
         // TF 初始化
@@ -40,37 +38,37 @@ namespace hnurm
 
         // 里程计订阅
         odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-            "/Odometry", 
-            rclcpp::SensorDataQoS(), 
-            std::bind(&TfTransformer::odom_callback, this, std::placeholders::_1)
-        );
+            "/Odometry",
+            rclcpp::SensorDataQoS(),
+            std::bind(&TfTransformer::odom_callback, this, std::placeholders::_1));
         init_pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
             "/initialpose",
             rclcpp::SensorDataQoS(),
             std::bind(&TfTransformer::initial_pose_callback, this, std::placeholders::_1));
 
+        // 重新定位订阅
+        relocalization_sub_ = this->create_subscription<std_msgs::msg::Bool>(
+            "/relocalization/state_for_tf",
+            rclcpp::SensorDataQoS(),
+            std::bind(&TfTransformer::relocalization_state_callback, this, std::placeholders::_1));
+
         // 发布转换后的里程计
-        odom_pub_  
-         = this->create_publisher<nav_msgs::msg::Odometry>(
-            "Odometry_transformed", 
-            rclcpp::SensorDataQoS()
-        );   
+        odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(
+            "Odometry_transformed",
+            rclcpp::SensorDataQoS());
 
         // 订阅串口接收数据
-        recv_data_sub_ 
-         = this->create_subscription<hnurm_interfaces::msg::VisionRecvData>(
-            "vision_recv_data", 
-            rclcpp::SensorDataQoS(), 
-            std::bind(&TfTransformer::recv_data_callback, this, std::placeholders::_1)
-        );
-        
+        recv_data_sub_ = this->create_subscription<hnurm_interfaces::msg::VisionRecvData>(
+            "vision_recv_data",
+            rclcpp::SensorDataQoS(),
+            std::bind(&TfTransformer::recv_data_callback, this, std::placeholders::_1));
+
         // 定时器初始化
         timer_tf_ = this->create_wall_timer(100ms, std::bind(&TfTransformer::timer_callback, this));
-
     }
-    
+
     // 获取变换参数
-    TfTransformer::extrinsic TfTransformer::getTransformParams(const std::string & ns)
+    TfTransformer::extrinsic TfTransformer::getTransformParams(const std::string &ns)
     {
         extrinsic t;
         this->get_parameter(ns + ".x", t.x);
@@ -83,7 +81,7 @@ namespace hnurm
     }
 
     // 初始化位姿回调
-    void TfTransformer::initial_pose_callback( const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
+    void TfTransformer::initial_pose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
     {
         initial_pose_guess_.translation.x = msg->pose.pose.position.x;
         initial_pose_guess_.translation.y = msg->pose.pose.position.y;
@@ -98,12 +96,8 @@ namespace hnurm
     // 串口数据回调
     void TfTransformer::recv_data_callback(const hnurm_interfaces::msg::VisionRecvData::SharedPtr msg)
     {
-        rpy_.roll = msg->roll;
-        rpy_.pitch = msg->pitch;
-        rpy_.yaw = msg->yaw;
-        if(msg->self_color.data == 1) 
-        { 
-            self_color = "RED";
+        if (msg->self_color.data == 1) // RED红色
+        {
             init_trans_.translation.x = 0.0;
             init_trans_.translation.y = 0.0;
             init_trans_.translation.z = 0.0;
@@ -112,8 +106,8 @@ namespace hnurm
             init_trans_.rotation.z = 0.0;
             init_trans_.rotation.w = 1.0;
         }
-        else  {
-            self_color = "BLUE";
+        else // BLUE蓝色
+        {
             init_trans_.translation.x = 0.0;
             init_trans_.translation.y = 0.0;
             init_trans_.translation.z = 0.0;
@@ -135,7 +129,7 @@ namespace hnurm
         tf2::Quaternion q;
 
         // map -> odom : 动态发布（支持重定位）
-        if(is_self_color_set_)
+        if (is_self_color_set_ && !is_relocating)
         {
             geometry_msgs::msg::Transform transfrom_;
             if (!is_initial_pose_get_)
@@ -158,7 +152,8 @@ namespace hnurm
             tf_broadcaster_->sendTransform(transformStamped);
         }
 
-        if(is_finished_static_transform_) return;
+        if (is_finished_static_transform_)
+            return;
         /*tf tree
             map
             └──► odom
@@ -168,13 +163,13 @@ namespace hnurm
                                   │
                                   └──► back_camera
         */
-        
-        static_transform.header.frame_id = "base_footprint";   // 父坐标系
-        static_transform.child_frame_id = "lidar_link";    // 子坐标系
+
+        static_transform.header.frame_id = "base_footprint"; // 父坐标系
+        static_transform.child_frame_id = "lidar_link";      // 子坐标系
         static_transform.transform.translation.x = lidar_to_base.x;
         static_transform.transform.translation.y = lidar_to_base.y;
         static_transform.transform.translation.z = lidar_to_base.z;
-        q.setRPY(0.0, 0.0, 0.0);  // 旋转角度（单位：弧度）
+        q.setRPY(0.0, 0.0, 0.0); // 旋转角度（单位：弧度）
         static_transform.transform.rotation.x = q.x();
         static_transform.transform.rotation.y = q.y();
         static_transform.transform.rotation.z = q.z();
@@ -182,12 +177,12 @@ namespace hnurm
         static_broadcaster_->sendTransform(static_transform);
 
         // lidar_link -> livox_frame : 静态变换，Livox雷达坐标系
-        static_transform.header.frame_id = "lidar_link";   // 父坐标系
-        static_transform.child_frame_id = "livox_frame";    // 子坐标系
+        static_transform.header.frame_id = "lidar_link"; // 父坐标系
+        static_transform.child_frame_id = "livox_frame"; // 子坐标系
         static_transform.transform.translation.x = 0.0;
         static_transform.transform.translation.y = 0.0;
         static_transform.transform.translation.z = 0.0;
-        q.setRPY(0.0, 0.0, 0.0);  // 旋转角度（单位：弧度）
+        q.setRPY(0.0, 0.0, 0.0); // 旋转角度（单位：弧度）
         static_transform.transform.rotation.x = q.x();
         static_transform.transform.rotation.y = q.y();
         static_transform.transform.rotation.z = q.z();
@@ -195,12 +190,12 @@ namespace hnurm
         static_broadcaster_->sendTransform(static_transform);
 
         // base_link -> base_footprint : 静态变换，底盘坐标系
-        static_transform.header.frame_id = "base_link";   // 父坐标系
-        static_transform.child_frame_id = "base_footprint";    // 子坐标系
+        static_transform.header.frame_id = "base_link";     // 父坐标系
+        static_transform.child_frame_id = "base_footprint"; // 子坐标系
         static_transform.transform.translation.x = -lidar_to_base.x;
         static_transform.transform.translation.y = -lidar_to_base.y;
         static_transform.transform.translation.z = -lidar_to_base.z;
-        q.setRPY(0.0, 0.0, 0.0);  // 旋转角度（单位：弧度）
+        q.setRPY(0.0, 0.0, 0.0); // 旋转角度（单位：弧度）
         static_transform.transform.rotation.x = q.x();
         static_transform.transform.rotation.y = q.y();
         static_transform.transform.rotation.z = q.z();
@@ -208,22 +203,19 @@ namespace hnurm
         static_broadcaster_->sendTransform(static_transform);
 
         // base_footprint -> back_camera : 静态变换，后视摄像头坐标系
-        static_transform.header.frame_id = "base_footprint";   // 父坐标系
-        static_transform.child_frame_id = "back_camera";    // 子坐标系
+        static_transform.header.frame_id = "base_footprint"; // 父坐标系
+        static_transform.child_frame_id = "back_camera";     // 子坐标系
         static_transform.transform.translation.x = back_camera_to_base.x;
         static_transform.transform.translation.y = back_camera_to_base.y;
         static_transform.transform.translation.z = back_camera_to_base.z;
-        q.setRPY(0.0, 0.0,-M_PI);  // 旋转角度（单位：弧度）
+        q.setRPY(0.0, 0.0, -M_PI); // 旋转角度（单位：弧度）
         static_transform.transform.rotation.x = q.x();
         static_transform.transform.rotation.y = q.y();
         static_transform.transform.rotation.z = q.z();
         static_transform.transform.rotation.w = q.w();
         static_broadcaster_->sendTransform(static_transform);
 
-       
-
         is_finished_static_transform_ = true;
-
     }
 
     // 里程计回调
@@ -237,20 +229,24 @@ namespace hnurm
         odom_transformed.header = msg->header;
         odom_transformed.pose.covariance = msg->pose.covariance;
         odom2base_link = msg->pose.pose;
-        
-        try {
+
+        try
+        {
             transform = tf_buffer_->lookupTransform("lidar_link", "base_footprint", rclcpp::Time(0), 0.1s);
         }
-        catch (tf2::TransformException &ex) {
+        catch (tf2::TransformException &ex)
+        {
             RCLCPP_WARN(this->get_logger(), "Transform failed: %s. Waiting for transform...", ex.what());
-            return;  // 如果转换查找失败，则退出该回调
+            return; // 如果转换查找失败，则退出该回调
         }
-        
-        try {
+
+        try
+        {
             // 将odom->base_link位姿转换为odom->base_footprint
             tf2::doTransform(odom2base_link, transformedPose, transform);
         }
-        catch (tf2::TransformException &ex) {
+        catch (tf2::TransformException &ex)
+        {
             RCLCPP_WARN(this->get_logger(), "Transform exception: %s", ex.what());
             return;
         }
@@ -259,7 +255,6 @@ namespace hnurm
         odom_transformed.child_frame_id = "base_footprint";
         odom_transformed.pose.pose = transformedPose;
         odom_pub_->publish(odom_transformed);
-
 
         geometry_msgs::msg::TransformStamped odom2base_link_transform;
         odom2base_link_transform.header.stamp = msg->header.stamp;
@@ -275,16 +270,19 @@ namespace hnurm
         tf_broadcaster_->sendTransform(odom2base_link_transform);
     }
 
-   
+    void TfTransformer::relocalization_state_callback(const std_msgs::msg::Bool::SharedPtr msg)
+    {
+        is_relocating = msg->data;
+    }
 
-}  // namespace hnurm
+} // namespace hnurm
 
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
     rclcpp::NodeOptions options;
     options.allow_undeclared_parameters(true)
-           .automatically_declare_parameters_from_overrides(true);
+        .automatically_declare_parameters_from_overrides(true);
     auto node = std::make_shared<hnurm::TfTransformer>(options);
     // rclcpp::spin(node);
     rclcpp::executors::MultiThreadedExecutor executor;
