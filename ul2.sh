@@ -18,16 +18,17 @@ cmds=(
 
     #自瞄（包含串口）
     "ros2 launch hnurm_bringup bringup.launch.py"
-    #navigation
-    #"echo ' '|sudo -S docker run --rm --net host --env DISPLAY=\$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix --volume /dev:/dev --privileged livo2:latest bash -c 'source ~/.bashrc && roslaunch fast_livo maping_mid360.launch rviz:=0 img_en:=0'"
+
+    #fast_livo2
     "ros2 launch livox_ros_driver2 msg_MID360_launch.py"
 
-    'ros2 launch fast_livo mapping_mid360.launch.py'
+    'ros2 launch fast_livo odometry_mode.launch.py'
     
     
-
+    # TF 转换
     "ros2 launch hnurm_bringup tf_transformer.launch.py"
 
+    # 点云数据流
     "ros2 launch hnurm_bringup test.launch.py"
 
 
