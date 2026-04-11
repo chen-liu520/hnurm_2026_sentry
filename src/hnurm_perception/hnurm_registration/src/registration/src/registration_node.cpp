@@ -367,10 +367,7 @@ namespace hnurm
         status_pub_->publish(status_msg);
 
         std_msgs::msg::Bool tf_status_msg;
-        if (state_.load() != State::INIT)
-            tf_status_msg.data = true;
-        else
-            tf_status_msg.data = false;
+        tf_status_msg.data = true;
         relocalization_status_for_tf_pub_->publish(tf_status_msg);
     }
 
