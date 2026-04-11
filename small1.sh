@@ -23,7 +23,6 @@ cmds=(
     # "ros2 launch registration registration.launch.py"
     # "rviz2"
     
-    #"ros2 run gimbal_rotation_server referee"
 
     #"ros2 run gimbal_rotation_server gesture_printer"
     
