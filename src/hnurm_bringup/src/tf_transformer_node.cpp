@@ -272,7 +272,15 @@ namespace hnurm
 
     void TfTransformer::relocalization_state_callback(const std_msgs::msg::Bool::SharedPtr msg)
     {
-        is_relocating = msg->data;
+        if(is_relocating){
+            return;
+        }
+        if(msg->data){
+            is_relocating = true;
+        }
+        else{
+            is_relocating = false;
+        }
     }
 
 } // namespace hnurm
