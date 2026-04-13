@@ -133,9 +133,7 @@ namespace hnurm
         {
             geometry_msgs::msg::Transform transfrom_;
             if (!is_initial_pose_get_)
-            {
                 transfrom_ = init_trans_;
-            }
             else
                 transfrom_ = initial_pose_guess_;
 

@@ -373,11 +373,6 @@ namespace hnurm
 
     void RelocationNode::tf_pub_timer_callback()
     {
-        if (pre_result_.isApprox(Eigen::Isometry3d::Identity()))
-        {
-            // RCLCPP_WARN(get_logger(), "当前位姿为单位矩阵，暂不发布TF");
-            return;
-        }
         Eigen::Isometry3d T_map_odom = pre_result_;
 
         transform.header.stamp = this->now();
