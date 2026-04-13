@@ -133,9 +133,7 @@ namespace hnurm
         {
             geometry_msgs::msg::Transform transfrom_;
             if (!is_initial_pose_get_)
-            {
                 transfrom_ = init_trans_;
-            }
             else
                 transfrom_ = initial_pose_guess_;
 
@@ -272,7 +270,15 @@ namespace hnurm
 
     void TfTransformer::relocalization_state_callback(const std_msgs::msg::Bool::SharedPtr msg)
     {
-        is_relocating = msg->data;
+        if(is_relocating){
+            return;
+        }
+        if(msg->data){
+            is_relocating = true;
+        }
+        else{
+            is_relocating = false;
+        }
     }
 
 } // namespace hnurm
