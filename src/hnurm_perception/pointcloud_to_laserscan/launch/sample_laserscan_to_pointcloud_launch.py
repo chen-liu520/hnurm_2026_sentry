@@ -25,7 +25,7 @@ def generate_launch_description():
                 })
             ],
             name='scan_publisher'
-        ),
+        ), # 向sensor_msgs/msg/LaserScan持续发布一个假的激光扫描消息，在没有硬件的情况下测试点云转换功能
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',

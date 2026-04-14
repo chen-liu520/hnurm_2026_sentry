@@ -37,49 +37,59 @@
 #include <memory>
 #include <random>
 
-#include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
-#include "sensor_msgs/point_cloud2_iterator.hpp"
 
+#include "rclcpp/rclcpp.hpp" // 引入 ROS2 核心头文件：rclcpp 用于节点创建和管理
+#include "sensor_msgs/msg/point_cloud2.hpp" // 引入传感器消息类型：PointCloud2 用于点云数据
+#include "sensor_msgs/point_cloud2_iterator.hpp" // 引入点云迭代器工具，用于遍历和修改点云数据
+
+// 程序主函数，ROS2 节点的入口点
 int main(int argc, char * argv[])
 {
+  // 初始化 ROS2 系统，解析命令行参数
   rclcpp::init(argc, argv);
 
   auto node = std::make_shared<rclcpp::Node>("dummy_pointcloud_publisher");
+  // 创建一个发布器，用于发布 PointCloud2 类型的消息到 "cloud" 话题
+  // rclcpp::SensorDataQoS() 设置适合传感器数据的 QoS 策略
   auto pub =
     node->create_publisher<sensor_msgs::msg::PointCloud2>("cloud", rclcpp::SensorDataQoS());
 
-  sensor_msgs::msg::PointCloud2 dummy_cloud;
-  sensor_msgs::PointCloud2Modifier modifier(dummy_cloud);
+  sensor_msgs::msg::PointCloud2 dummy_cloud; // 创建一个空的 PointCloud2 消息对象，用于存储生成的点云数据
+  sensor_msgs::PointCloud2Modifier modifier(dummy_cloud); // 创建点云修改器，用于设置点云的字段和大小
   modifier.setPointCloud2Fields(
     3,
     "x", 1, sensor_msgs::msg::PointField::FLOAT32,
     "y", 1, sensor_msgs::msg::PointField::FLOAT32,
-    "z", 1, sensor_msgs::msg::PointField::FLOAT32);
-  modifier.resize(node->declare_parameter("cloud_size", 100));
-  std::mt19937 gen(node->declare_parameter("cloud_seed", 0));
-  double extent = node->declare_parameter("cloud_extent", 10.0);
-  std::uniform_real_distribution<float> distribution(-extent / 2, extent / 2);
+    "z", 1, sensor_msgs::msg::PointField::FLOAT32); // 设置点云包含 3 个字段：x, y, z，每个字段都是 32 位浮点数
+
+  modifier.resize(node->declare_parameter("cloud_size", 100)); // 设置点云的大小（点数），从参数服务器获取，默认值为 100
+  std::mt19937 gen(node->declare_parameter("cloud_seed", 0)); // 创建随机数生成器，种子从参数服务器获取，默认值为 0
+  double extent = node->declare_parameter("cloud_extent", 10.0); // 定义点云的分布范围，从参数服务器获取，默认值为 10.0
+  std::uniform_real_distribution<float> distribution(-extent / 2, extent / 2); // 创建均匀分布对象，用于生成 -extent/2 到 extent/2 之间的随机浮点数
+
+  // 创建点云迭代器，分别指向 x, y, z 字段
   sensor_msgs::PointCloud2Iterator<float> it_x(dummy_cloud, "x");
   sensor_msgs::PointCloud2Iterator<float> it_y(dummy_cloud, "y");
   sensor_msgs::PointCloud2Iterator<float> it_z(dummy_cloud, "z");
-  for (; it_x != it_x.end(); ++it_x, ++it_y, ++it_z) {
-    *it_x = distribution(gen);
-    *it_y = distribution(gen);
-    *it_z = distribution(gen);
-  }
-  dummy_cloud.header.frame_id = node->declare_parameter("cloud_frame_id", "");
 
-  rclcpp::executors::SingleThreadedExecutor executor;
-  executor.add_node(node);
-  rclcpp::Rate rate(1.0);
+  // 遍历点云中的每个点，使用迭代器访问和修改数据
+  for (; it_x != it_x.end(); ++it_x, ++it_y, ++it_z) {
+    *it_x = distribution(gen); // 为每个点的 x 坐标赋值为随机数
+    *it_y = distribution(gen); // 为每个点的 y 坐标赋值为随机数
+    *it_z = distribution(gen); // 为每个点的 z 坐标赋值为随机数
+  }
+
+  dummy_cloud.header.frame_id = node->declare_parameter("cloud_frame_id", ""); // 设置点云消息的坐标系 ID，从参数服务器获取，默认值为空字符串
+
+  rclcpp::executors::SingleThreadedExecutor executor;  // 创建单线程执行器，用于管理节点的回调和事件
+  executor.add_node(node); // 将节点添加到执行器中
+  rclcpp::Rate rate(1.0); // 创建速率控制器，设置为 1.0 Hz（每秒 1 次）
   while (rclcpp::ok()) {
     dummy_cloud.header.stamp = node->get_clock()->now();
     pub->publish(dummy_cloud);
     executor.spin_some();
     rate.sleep();
   }
-
   rclcpp::shutdown();
   return 0;
 }
